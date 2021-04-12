@@ -11,11 +11,11 @@ export class TokenService {
   constructor() { }
 
   getAccessToken(){
-    localStorage.getItem(ACCESS_TOKEN);
+    return localStorage.getItem(ACCESS_TOKEN);
   }
 
   getRefreshToken(){
-    localStorage.getItem(REFRESH_TOKEN);
+    return localStorage.getItem(REFRESH_TOKEN);
   }
 
   saveAccessToken(accessToken : string){
