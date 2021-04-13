@@ -1,14 +1,14 @@
 import { TokenService } from './token.service';
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 
 const OAUTH_CLIENT = 'express-client';
 const OAUTH_SECRET = 'express-secret';
-const API_URL = 'http://localhost:3000';
+const API_URL = 'https://serverouath.herokuapp.com/';
 const HTTP_OPTIONS = {
-  headers: new Headers({
+  headers: new HttpHeaders({
     'Content-type': 'application/x-www-form-urlencoded',
     Authorization: 'Basic '+ btoa(OAUTH_CLIENT+ ':' + OAUTH_SECRET)
   })
@@ -51,10 +51,10 @@ export class AuthService {
       .set('password', loginData.password)
       .set('grant_type', 'password');
 
-      return this.http.post<any>(API_URL + 'oauth/token', body, HTTP_OPTIONS)
+      return this.http.post<any>(API_URL + 'oauth/token', body,  HTTP_OPTIONS )
       .pipe(
         tap(res => {
-          this.tokenService.saveToken(res.access_token);
+          this.tokenService.saveAccessToken(res.access_token);
           this.tokenService.saveRefreshToken(res.refresh_token);
         }),
         catchError(AuthService.handleError)
@@ -62,7 +62,7 @@ export class AuthService {
   }
 
   refreshToken(refreshData: any): Observable<any> {
-    this.tokenService.removeToken();
+    this.tokenService.removeAccessToken();
     this.tokenService.removeRefreshToken();
     const body = new HttpParams()
       .set('refresh_token', refreshData.refresh_token)
@@ -70,7 +70,7 @@ export class AuthService {
     return this.http.post<any>(API_URL + 'oauth/token', body, HTTP_OPTIONS)
       .pipe(
         tap(res => {
-          this.tokenService.saveToken(res.access_token);
+          this.tokenService.saveAccessToken(res.access_token);
           this.tokenService.saveRefreshToken(res.refresh_token);
         }),
         catchError(AuthService.handleError)
@@ -78,7 +78,7 @@ export class AuthService {
   }
 
   logout(): void {
-    this.tokenService.removeToken();
+    this.tokenService.removeAccessToken();
     this.tokenService.removeRefreshToken();
   }
 
